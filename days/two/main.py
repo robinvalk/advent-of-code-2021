@@ -14,16 +14,18 @@ if __name__ == "__main__":
 
     horizontal = 0
     dept = 0
+    aim = 0
 
     for command in input:
         action, distance = command.split(" ")
 
         if action == 'forward':
             horizontal += int(distance)
+            dept += int(distance) * aim
         elif action == 'down':
-            dept += int(distance)
+            aim += int(distance)
         elif action == 'up':
-            dept -= int(distance)
+            aim -= int(distance)
 
     print(f"Horizontal: {horizontal}, Dept: {dept}")
     print(f"Course: {horizontal*dept}")
