@@ -1,3 +1,38 @@
+def count_mask(input: list[str]) -> list[int]:
+    num_bits = len(input[0])
+    gamma_count = [0] * num_bits
+
+    for diagnostic in input:
+        for index, bit in enumerate(diagnostic):
+            gamma_count[index] = gamma_count[index] + (-1 if bit == "0" else 1)
+
+    return gamma_count
+
+def filter_by_index(input: list[str], index: int, fallback: int) -> list[str]:
+    mask = count_mask(input)
+
+    filter_bit = 1
+    if mask[index] < 0:
+        filter_bit = 0
+    elif mask[index] > 0:
+        filter_bit = 1
+
+    if fallback == 0:
+        return [line for line in input if int(line[index]) != filter_bit]
+
+    return [line for line in input if int(line[index]) == filter_bit]
+
+def find_unique_line(input: list[str], fallback: int) -> str:
+    num_bits = len(input[0])
+
+    for i in range(num_bits):
+        input = filter_by_index(input, i, fallback)
+
+        if len(input) == 1:
+            break
+
+    return input[0]
+
 if __name__ == "__main__":
     input = [
         "00100",
@@ -18,17 +53,9 @@ if __name__ == "__main__":
     with open("days/three/input.txt") as input_file:
         input = [line.strip() for line in input_file.readlines()]
 
-    num_bits = len(input[0])
-    gamma_count = [0] * num_bits
+    oxygen_count = int(find_unique_line(input, fallback=1), 2)
+    print(f"oxygen_count: {oxygen_count}")
+    co2_count = int(find_unique_line(input, fallback=0), 2)
+    print(f"co2_count: {co2_count}")
 
-    for diagnostic in input:
-        for index, bit in enumerate(diagnostic):
-            gamma_count[index] = gamma_count[index] + (-1 if bit == "0" else 1)
-
-    gamma_binary_array = [1 if x > 0 else 0 for x in gamma_count]
-    gamma_binary_string = ''.join(str(x) for x in gamma_binary_array)
-
-    gamma_rate = int(gamma_binary_string, 2)
-    epsilon_rate = gamma_rate ^ int(''.join(str(x) for x in ([1] * num_bits)), 2)
-
-    print(f"output: {gamma_rate*epsilon_rate}")
+    print(f"outcome: {oxygen_count*co2_count}")
