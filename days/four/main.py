@@ -91,10 +91,16 @@ if __name__ == "__main__":
 
     numbers, boards = parse_input(input)
 
+    last_won_boards = []
     for number in numbers:
         boards = [board.mark(number) for board in boards]
-        bingo_boards = [x for x in boards if x.hasBingo()]
+        bingo_boards = [boardIndex for boardIndex, x in enumerate(boards) if x.hasBingo()]
 
-        if len(bingo_boards) > 0:
-            print(bingo_boards[0].sumUnmarked() * number)
+        if len(bingo_boards) == len(boards):
+            last_boards = [x for x in bingo_boards if x not in last_won_boards]
+            last_board_index = last_boards[0]
+
+            print(boards[last_board_index].sumUnmarked() * number)
             break
+        else:
+            last_won_boards = bingo_boards
