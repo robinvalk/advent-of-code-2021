@@ -6,34 +6,56 @@ class Line:
     start_coord: tuple[int, int]
     end_coord: tuple[int, int]
 
-    def getMaxX(self) -> int:
-        return self.start_coord[0] if self.start_coord[0] >= self.end_coord[0] else self.end_coord[0]
-    def getMaxY(self) -> int:
-        return self.start_coord[1] if self.start_coord[1] >= self.end_coord[1] else self.end_coord[1]
-
-    def isInStraightLine(self) -> bool:
+    def isStraightLine(self) -> bool:
         return self.start_coord[0] == self.end_coord[0] or self.start_coord[1] == self.end_coord[1]
 
-    def isXBetween(self, x: int) -> bool:
-        start = self.start_coord[0]
-        end = self.end_coord[0]
+    def fill(self, count_map: map[str, int]) -> bool:
+        start_x, end_x = sorted([self.start_coord[0], self.end_coord[0]])
+        start_y, end_y = sorted([self.start_coord[1], self.end_coord[1]])
 
-        if start <= end:
-            return start <= x and end >= x
+        if self.isStraightLine():
+            x_range = range(start_x, end_x+1)
+            y_range = range(start_y, end_y+1)
+
+            for x in x_range:
+                for y in y_range:
+                    key = f"{x}:{y}"
+                    if count_map.get(key) is None:
+                        count_map[key] = 1
+                    else:
+                        count_map[key] = count_map[key] + 1
         else:
-            return end <= x and start >= x
+            x_index = self.start_coord[0]
+            y_index = self.start_coord[1]
 
-    def isYBetween(self, y: int) -> bool:
-        start = self.start_coord[1]
-        end = self.end_coord[1]
+            if self.start_coord[0] <= self.end_coord[0]:
+                while x_index <= self.end_coord[0]:
+                    key = f"{x_index}:{y_index}"
+                    if count_map.get(key) is None:
+                        count_map[key] = 1
+                    else:
+                        count_map[key] = count_map[key] + 1
 
-        if start <= end:
-            return start <= y and end >= y
-        else:
-            return end <= y and start >= y
+                    x_index = x_index+1
+                    if self.start_coord[1] <= self.end_coord[1]:
+                        y_index = y_index+1
+                    else:
+                        y_index = y_index-1
+            else:
+                while x_index >= self.end_coord[0]:
+                    key = f"{x_index}:{y_index}"
+                    if count_map.get(key) is None:
+                        count_map[key] = 1
+                    else:
+                        count_map[key] = count_map[key] + 1
 
-def matrix_gen(rows: int, cols: int) -> list[list[bool]]:
-    return [[False for x in range(cols)] for x in range(rows)]
+                    x_index = x_index-1
+                    if self.start_coord[1] <= self.end_coord[1]:
+                        y_index = y_index+1
+                    else:
+                        y_index = y_index-1
+
+        return count_map
 
 def parse_input(input: str) -> list[Line]:
     lines = []
@@ -66,22 +88,10 @@ if __name__ == "__main__":
         input = input_file.read()
 
     lines = parse_input(input)
-    highest_x_line = sorted(lines, key=lambda x: x.getMaxX(), reverse=True)[0]
-    highest_y_line = sorted(lines, key=lambda x: x.getMaxY(), reverse=True)[0]
 
     count_map = {}
-    filtered_lines = list(filter(lambda x: x.isInStraightLine(), lines))
-
-    for x in range(highest_x_line.getMaxX() + 1):
-        for y in range(highest_y_line.getMaxY() + 1):
-            for line in filtered_lines:
-                if line.isXBetween(x) and line.isYBetween(y):
-                    key = f"{x}:{y}"
-                    if count_map.get(key) is None:
-                        count_map[key] = 1
-                    else:
-                        count_map[key] = count_map[key] + 1
-
+    for line in lines:
+        count_map = line.fill(count_map)
 
     filtered_count = len(list(filter(lambda x: x >= 2, count_map.values())))
     print(filtered_count)
