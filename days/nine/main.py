@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 if __name__ == "__main__":
     input = '''2199943210
             3987894921
@@ -11,36 +13,43 @@ if __name__ == "__main__":
 
     lines = [list(line.strip()) for line in input.split("\n")]
     data = {index: {i: int(v) for i, v in enumerate(x)} for index, x in enumerate(lines)}
+    visited = defaultdict(dict)
 
-    low_points = 0
+    def check_point(y, x, basin_count):
+        is_visited = visited[y].get(x, False)
+        point_data = data.get(y, {}).get(x, 10)
+
+        if is_visited or point_data >= 9:
+            visited[y][x] = True
+            return basin_count
+
+        visited[y][x] = True
+
+        basin_count = check_point(y-1, x, basin_count)
+        basin_count = check_point(y+1, x, basin_count)
+        basin_count = check_point(y, x-1, basin_count)
+        basin_count = check_point(y, x+1, basin_count)
+
+        return basin_count + 1
+
+    basins = []
     for y, line in data.items():
         for x, point in line.items():
-            low_point = True
+            if visited[y].get(x, False):
+                continue
 
-            for a in range(-1, 2):
-                if not low_point:
-                    break
+            if point >= 9:
+                visited[y][x] = True
+                continue
 
-                for b in range(-1, 2):
-                    if not low_point:
-                        break
+            basins.append(
+                check_point(y, x, 0)
+            )
 
-                    is_diagonal = not (a == 0 or b == 0)
-                    is_current_point = a == 0 and b == 0
-                    if is_diagonal or is_current_point:
-                        continue
+    basins.sort(reverse=True)
 
-                    item = data.get(y + a, {}).get(x + b, None)
-                    if item == None:
-                        continue
+    sum = 1
+    for x in basins[:3]:
+        sum *= x
 
-                    if point >= item:
-                        low_point = False
-
-            if low_point == True:
-                print(f"Low point: {point}")
-                low_points += 1 + point
-
-    print(low_points)
-
-
+    print(sum)
