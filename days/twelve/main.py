@@ -1,13 +1,16 @@
 from collections import defaultdict
 
 if __name__ == "__main__":
-    input = '''start-A
-start-b
-A-c
-A-b
-b-d
-A-end
-b-end'''
+    input = '''dc-end
+HN-start
+start-kj
+dc-start
+dc-HN
+LN-dc
+HN-end
+kj-sa
+kj-HN
+kj-dc'''
 
     # Read input
     with open("days/twelve/input.txt") as input_file:
@@ -23,8 +26,14 @@ b-end'''
         connections[b].append(a)
 
     routes = []
-    def follow_path(current_point, path = [], small_caves_visited = []):
-        if current_point in small_caves_visited:
+    def follow_path(current_point, path = [], small_caves_visited = [], joker_used = False):
+        if current_point in small_caves_visited and joker_used:
+            return
+
+        if current_point in small_caves_visited and not joker_used and current_point not in ['start', 'end']:
+            joker_used = True
+
+        if current_point == 'start' and current_point in small_caves_visited:
             return
 
         path.append(current_point)
@@ -37,8 +46,7 @@ b-end'''
             return
 
         for option in connections[current_point]:
-            follow_path(option, path.copy(), small_caves_visited.copy())
-
+            follow_path(option, path.copy(), small_caves_visited.copy(), joker_used)
 
     follow_path('start')
 
