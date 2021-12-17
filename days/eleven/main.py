@@ -41,7 +41,8 @@ if __name__ == "__main__":
 
                         increase_neighbours(y+i, x+u, True)
 
-    for i in range(0, 100):
+    for i in range(0, 100000000):
+        flash_count = 0
         flashed = defaultdict(bool)
 
         for y, line in enumerate(lines):
@@ -57,4 +58,6 @@ if __name__ == "__main__":
                 if flashed[(y, x)]:
                     lines[y][x] = 0
 
-    print(flash_count)
+        if flash_count == 10*10:
+            print(i+1)
+            break
