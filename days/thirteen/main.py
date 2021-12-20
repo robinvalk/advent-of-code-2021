@@ -36,7 +36,7 @@ fold along x=5'''
     for (x,y) in coords:
         paper[(int(x), int(y))] = True
 
-    for fold_instruction in fold_instructions[:1]:
+    for fold_instruction in fold_instructions:
         fold_type, axis = fold_instruction
         axis = int(axis)
         new_paper = paper.copy()
@@ -56,4 +56,10 @@ fold along x=5'''
                 del paper[(x,y)]
                 paper[(2*axis-x,y)] = True
 
-    print(len(list(filter(lambda x: x, paper.values()))))
+
+    max_x = max(list(map(lambda coord: coord[0], paper.keys())))
+    max_y = max(list(map(lambda coord: coord[1], paper.keys())))
+
+    for y in range(0, max_y+1):
+        print("".join(['#' if paper[(x,y)] else '.' for x in range(0, max_x+1)]))
+
