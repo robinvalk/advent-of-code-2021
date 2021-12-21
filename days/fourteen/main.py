@@ -1,4 +1,5 @@
-from collections import Counter
+from collections import Counter, defaultdict
+from os import pardir
 
 if __name__ == "__main__":
     input = '''NNCB
@@ -33,20 +34,31 @@ CN -> C'''
         a,b = list(pair)
         pair_insertion_rules[(a,b)] = result
 
-    for x in range(0, 10):
-        print(f"Step {x}")
-        polymer_template_increment = polymer_template.copy()
-
-        for i in range(0, len(polymer_template) - 1):
+    element_count = defaultdict(int)
+    pairs = defaultdict(int)
+    for i in range(0, len(polymer_template)):
             a = polymer_template[i]
+            element_count[a] += 1
+
+            if i+1 >= len(polymer_template):
+                continue
+
             b = polymer_template[i + 1]
-            polymer_template_increment.insert(i+1+i, pair_insertion_rules[(a,b)])
 
-        polymer_template = polymer_template_increment
+            pairs[(a, b)] += 1
 
+    for x in range(0, 40):
+        new_pairs = defaultdict(int)
 
-    print("Start counting")
-    counter = Counter(polymer_template)
-    most = counter.most_common()[0]
-    least = counter.most_common()[-1]
-    print(f"{most[1]} - {least[1]} = {most[1] - least[1]}")
+        for (a,b), count in pairs.items():
+            new_element = pair_insertion_rules[(a,b)]
+            element_count[new_element] += count
+
+            new_pairs[(a, new_element)] += count
+            new_pairs[(new_element, b)] += count
+
+        pairs = new_pairs
+
+    sorted_values = sorted(element_count.values())
+    print(sorted_values)
+    print(sorted_values[-1] - sorted_values[0])
